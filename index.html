@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Missão Brasil | Bandeiras, Capitais e Biomas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app" id="appRoot">
+        
+        <!-- ========== TELA INICIAL ========== -->
+        <div id="telaInicial" class="screen active">
+            <div class="card-neo">
+                
+                <!-- HEADER REFORMULADO - SEM BANDEIRA DE FUNDO -->
+                <div class="neo-header">
+                    <!-- Elementos decorativos sutis -->
+                    <div class="decoration decoration-1"></div>
+                    <div class="decoration decoration-2"></div>
+                    <div class="decoration decoration-3"></div>
+                    
+                    <!-- Ícone -->
+                    <div class="neo-icon-wrapper">
+                        <div class="neo-icon">
+                            <i class="fas fa-flag-checkered"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Título principal -->
+                    <h1 class="neo-title">
+                        MISSÃO <span class="highlight">BRASIL</span>
+                    </h1>
+                    
+                    <!-- Subtítulo -->
+                    <p class="neo-sub">
+                        <i class="fas fa-flag"></i>
+                        Aprenda bandeiras
+                        <span class="sep">•</span>
+                        <i class="fas fa-city"></i>
+                        capitais
+                        <span class="sep">•</span>
+                        <i class="fas fa-tree"></i>
+                        biomas dos 27 estados
+                    </p>
+                    
+                    <!-- Badge informativo -->
+                    <div class="neo-badge">
+                        <span class="neo-badge-item">
+                            <span>27 ESTADOS</span>
+                        </span>
+                        <span class="neo-badge-divider"></span>
+                        <span class="neo-badge-item">
+                            <span>5 REGIÕES</span>
+                        </span>
+                        <span class="neo-badge-divider"></span>
+                        <span class="neo-badge-item">
+                            <span>6 BIOMAS</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="neo-perfil">
+                    <div class="neo-avatar">
+                        <img src="img/GeoBr.png" alt="Arara Azul" class="neo-avatar-img" id="avatarArara">
+                        <div>
+                            <span class="neo-nivel" id="nivelJogador">EXPLORADOR</span>
+                            <span class="neo-proximo" id="proximoNivel">PRÓXIMO: CONHECEDOR</span>
+                        </div>
+                    </div>
+                    
+                    <div class="neo-xp">
+                        <div class="neo-xp-header">
+                            <span><i class="fas fa-bolt"></i> EXPERIÊNCIA</span>
+                            <span id="xpTexto">0 / 30</span>
+                        </div>
+                        <div class="neo-xp-bar">
+                            <div class="neo-xp-fill" id="barraXP"></div>
+                        </div>
+                    </div>
+
+                    <div class="neo-stats">
+                        <div class="neo-stat">
+                            <i class="fas fa-trophy"></i>
+                            <span class="neo-stat-value" id="totalXP">0</span>
+                            <span class="neo-stat-label">XP TOTAL</span>
+                        </div>
+                        <div class="neo-stat">
+                            <i class="fas fa-bullseye"></i>
+                            <span class="neo-stat-value" id="totalAcertos">0</span>
+                            <span class="neo-stat-label">ACERTOS</span>
+                        </div>
+                        <div class="neo-stat">
+                            <i class="fas fa-fire"></i>
+                            <span class="neo-stat-value" id="maxCombo">0</span>
+                            <span class="neo-stat-label">MELHOR COMBO</span>
+                        </div>
+                        <div class="neo-stat">
+                            <i class="fas fa-flag"></i>
+                            <span class="neo-stat-value" id="bandeirasDesbloqueadas">0<span class="neo-stat-small">/27</span></span>
+                            <span class="neo-stat-label">BANDEIRAS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="neo-modo">
+                    <label class="neo-label"><i class="fas fa-gamepad"></i> MODO DE JOGO</label>
+                    <div class="neo-modo-buttons">
+                        <button class="neo-btn-modo active" data-modo="bandeiras">
+                            <i class="fas fa-flag"></i> BANDEIRAS
+                        </button>
+                        <button class="neo-btn-modo" data-modo="capitais">
+                            <i class="fas fa-city"></i> CAPITAIS
+                        </button>
+                        <button class="neo-btn-modo" data-modo="biomas">
+                            <i class="fas fa-tree"></i> BIOMAS
+                        </button>
+                    </div>
+                </div>
+
+                <div class="neo-filtro" id="containerFiltro">
+                    <label class="neo-label"><i class="fas fa-map"></i> FILTRAR POR REGIÃO</label>
+                    <select id="filtroRegiao" class="neo-select">
+                        <option value="all">🌎 TODAS AS REGIÕES (27)</option>
+                        <option value="Norte">🌴 NORTE (7)</option>
+                        <option value="Nordeste">🏖️ NORDESTE (9)</option>
+                        <option value="Centro-Oeste">🏞️ CENTRO-OESTE (4)</option>
+                        <option value="Sudeste">🏙️ SUDESTE (4)</option>
+                        <option value="Sul">❄️ SUL (3)</option>
+                    </select>
+                </div>
+
+                <div class="neo-album-mini">
+                    <div class="neo-album-header">
+                        <i class="fas fa-book-open"></i>
+                        <span>ÁLBUM DE PROGRESSO</span>
+                        <span class="neo-album-count" id="albumCount">0/27</span>
+                    </div>
+                    <div class="neo-mini-flags" id="miniBandeirasPreview"></div>
+                </div>
+
+                <!-- TRACKER DE BIOMAS -->
+                <div class="neo-bioma-tracker">
+                    <div class="neo-bioma-tracker-header">
+                        <i class="fas fa-globe-americas"></i>
+                        <span>BIOMAS DESCOBERTOS</span>
+                        <span id="biomaCount">0/6</span>
+                    </div>
+                    <div class="neo-bioma-tracker-grid" id="biomaTracker">
+                        <!-- Gerado dinamicamente -->
+                    </div>
+                </div>
+
+                <div class="neo-ranking">
+                    <div class="neo-ranking-header">
+                        <i class="fas fa-crown"></i> RANKING
+                        <div>
+                            <button id="btnResetarRanking" class="neo-ranking-btn neo-ranking-btn-danger" title="Resetar Ranking (Professor)">
+                                <i class="fas fa-trash-alt"></i> RESETAR
+                            </button>
+                            <button id="btnTrocarNome" class="neo-ranking-btn"><i class="fas fa-user-edit"></i> EDITAR</button>
+                        </div>
+                    </div>
+                    <div class="neo-ranking-list" id="rankingList"></div>
+                </div>
+
+                <button class="neo-btn neo-btn-primary" id="btnIniciarJogo">
+                    <i class="fas fa-play"></i> INICIAR MISSÃO
+                </button>
+
+                <div class="neo-btn-group">
+                    <button class="neo-btn neo-btn-secondary" id="btnAbrirAlbum">
+                        <i class="fas fa-book"></i> ÁLBUM COMPLETO (<span id="albumBtnCount">0</span>/27)
+                    </button>
+                    <button class="neo-btn neo-btn-secondary" id="btnAbrirConquistas">
+                        <i class="fas fa-medal"></i> CONQUISTAS
+                    </button>
+                </div>
+
+                <button class="neo-btn neo-btn-reset" id="btnResetarProgresso">
+                    <i class="fas fa-undo-alt"></i> RESETAR MEU PROGRESSO
+                </button>
+
+            </div>
+        </div>
+
+        <!-- ========== TELA DE JOGO ========== -->
+        <div id="telaJogo" class="screen">
+            <div class="card-neo">
+                
+                <div class="neo-game-header">
+                    <div class="neo-game-stat">
+                        <i class="fas fa-list-ol"></i>
+                        <span id="progressoAtual">1</span>/<span id="totalPerguntas">27</span>
+                    </div>
+                    <div class="neo-game-stat">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span id="timerSegundos">05</span>s
+                    </div>
+                    <div class="neo-game-stat">
+                        <i class="fas fa-star"></i>
+                        <span id="pontuacaoAtual">0</span>
+                    </div>
+                    <div class="neo-game-stat neo-combo">
+                        <i class="fas fa-fire"></i>
+                        <span id="comboAtual">0</span>x
+                    </div>
+                </div>
+
+                <div class="neo-pergunta">
+                    <div class="neo-pergunta-icon" id="perguntaIcon">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div class="neo-pergunta-texto" id="perguntaTexto">
+                        QUAL ESTADO POSSUI ESTA BANDEIRA?
+                    </div>
+                    <div class="neo-bandeira" id="containerImagem">
+                        <img id="bandeiraImg" class="neo-bandeira-img" src="" alt="Bandeira">
+                        <div id="biomaImgContainer" style="display: none;">
+                            <img id="biomaImg" class="neo-bioma-img" src="" alt="Bioma">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="neo-alternativas" id="containerAlternativas"></div>
+                
+                <div class="neo-feedback" id="areaFeedback"></div>
+
+                <button class="neo-btn neo-btn-back" id="btnVoltarMenu">
+                    <i class="fas fa-home"></i> VOLTAR AO MENU
+                </button>
+
+            </div>
+        </div>
+
+        <!-- ========== TELA ÁLBUM ========== -->
+        <div id="telaAlbum" class="screen">
+            <div class="card-neo">
+                <div class="neo-album-full">
+                    <div class="neo-album-full-header">
+                        <h2><i class="fas fa-book-open"></i> ÁLBUM DE BANDEIRAS</h2>
+                        <div class="neo-patente" id="albumPatente">EXPLORADOR</div>
+                    </div>
+                    <div class="neo-album-grid" id="listaAlbum"></div>
+                    <button class="neo-btn neo-btn-back" id="btnFecharAlbum">
+                        <i class="fas fa-arrow-left"></i> VOLTAR AO MENU
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== TELA RESULTADO ========== -->
+        <div id="telaResultado" class="screen">
+            <div class="card-neo neo-resultado">
+                <div class="neo-trofeu">
+                    <i class="fas fa-crown"></i>
+                    <i class="fas fa-trophy"></i>
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h1>MISSÃO CUMPRIDA!</h1>
+                <div class="neo-resultado-stats">
+                    <div class="stat-row">
+                        <span class="stat-label"><i class="fas fa-bullseye"></i> ACERTOS</span>
+                        <span class="stat-value">
+                            <span id="finalAcertos" class="highlight-green">0</span>
+                            <span class="stat-small">/ <span id="finalTotal">27</span></span>
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><i class="fas fa-chart-line"></i> PRECISÃO</span>
+                        <span class="stat-value">
+                            <span id="finalPrecisao" class="highlight-blue">0</span>
+                            <span class="stat-percent">%</span>
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><i class="fas fa-clock"></i> TEMPO TOTAL</span>
+                        <span class="stat-value">
+                            <span id="finalTempo" class="highlight-gold">00:00</span>
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><i class="fas fa-medal"></i> PATENTE</span>
+                        <span class="stat-value">
+                            <span id="finalPatente" class="highlight-blue">EXPLORADOR</span>
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><i class="fas fa-fire"></i> MAIOR COMBO</span>
+                        <span class="stat-value">
+                            <span id="finalMaxCombo" class="highlight-gold">0</span>
+                            <span class="stat-x">x</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="neo-resultado-buttons">
+                    <button class="neo-btn neo-btn-primary" id="btnJogarNovamente">
+                        <i class="fas fa-redo-alt"></i> JOGAR NOVAMENTE
+                    </button>
+                    <button class="neo-btn neo-btn-secondary" id="btnVerAlbum">
+                        <i class="fas fa-book"></i> VER ÁLBUM
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========== MODAIS ========== -->
+    <div id="modalEstado" class="modal">
+        <div class="modal-neo">
+            <div class="modal-neo-header">
+                <h2 id="modalNomeEstado">ESTADO</h2>
+                <button class="modal-neo-close" id="btnFecharModal">&times;</button>
+            </div>
+            <div class="modal-neo-body">
+                <img id="modalBandeira" class="modal-neo-flag" src="" alt="">
+                <div class="modal-neo-info">
+                    <p><i class="fas fa-city"></i> <strong>CAPITAL:</strong> <span id="modalCapital"></span></p>
+                    <p><i class="fas fa-globe-americas"></i> <strong>REGIÃO:</strong> <span id="modalRegiao"></span></p>
+                    <p><i class="fas fa-tree"></i> <strong>BIOMA:</strong> <span id="modalBioma"></span></p>
+                    <p><i class="fas fa-lightbulb"></i> <strong>CURIOSIDADE:</strong> <span id="modalCuriosidade"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalConquistas" class="modal">
+        <div class="modal-neo">
+            <div class="modal-neo-header">
+                <h2><i class="fas fa-medal"></i> CONQUISTAS</h2>
+                <button class="modal-neo-close" id="btnFecharConquistas">&times;</button>
+            </div>
+            <div class="modal-neo-body" id="listaConquistas"></div>
+        </div>
+    </div>
+
+    <div id="modalReset" class="modal">
+        <div class="modal-neo modal-neo-small">
+            <div class="modal-neo-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> RESETAR PROGRESSO</h2>
+            </div>
+            <div class="modal-neo-body">
+                <p>Tem certeza? Todo seu progresso será perdido.</p>
+                <div class="modal-neo-buttons">
+                    <button class="neo-btn neo-btn-danger" id="btnConfirmarReset">SIM, RESETAR</button>
+                    <button class="neo-btn neo-btn-secondary" id="btnCancelarReset">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalResetRanking" class="modal">
+        <div class="modal-neo modal-neo-small">
+            <div class="modal-neo-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> RESETAR RANKING</h2>
+            </div>
+            <div class="modal-neo-body">
+                <p>ATENÇÃO PROFESSOR! Isso apagará TODO o ranking de todos os alunos.</p>
+                <p>Digite a senha para confirmar:</p>
+                <input type="password" id="senhaResetRanking" placeholder="Senha do Professor" class="neo-input">
+                <div class="modal-neo-buttons">
+                    <button class="neo-btn neo-btn-danger" id="btnConfirmarResetRanking">RESETAR RANKING</button>
+                    <button class="neo-btn neo-btn-secondary" id="btnCancelarResetRanking">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PARA DADOS DO ALUNO -->
+    <div id="modalAluno" class="modal">
+        <div class="modal-neo modal-neo-small">
+            <div class="modal-neo-header">
+                <h2><i class="fas fa-user-graduate"></i> DADOS DO ALUNO</h2>
+                <button class="modal-neo-close" id="btnFecharModalAluno">&times;</button>
+            </div>
+            <div class="modal-neo-body">
+                <label class="neo-label-modal">NOME</label>
+                <input type="text" id="alunoNome" placeholder="Digite seu nome" maxlength="30" class="neo-input">
+                
+                <label class="neo-label-modal">SÉRIE</label>
+                <select id="alunoSerie" class="neo-select-modal">
+                    <option value="">Selecione a série</option>
+                    <optgroup label="ENSINO FUNDAMENTAL I">
+                        <option value="1º EF">1º ANO - ENSINO FUNDAMENTAL I</option>
+                        <option value="2º EF">2º ANO - ENSINO FUNDAMENTAL I</option>
+                        <option value="3º EF">3º ANO - ENSINO FUNDAMENTAL I</option>
+                        <option value="4º EF">4º ANO - ENSINO FUNDAMENTAL I</option>
+                        <option value="5º EF">5º ANO - ENSINO FUNDAMENTAL I</option>
+                    </optgroup>
+                    <optgroup label="ENSINO FUNDAMENTAL II">
+                        <option value="6º EF">6º ANO - ENSINO FUNDAMENTAL II</option>
+                        <option value="7º EF">7º ANO - ENSINO FUNDAMENTAL II</option>
+                        <option value="8º EF">8º ANO - ENSINO FUNDAMENTAL II</option>
+                        <option value="9º EF">9º ANO - ENSINO FUNDAMENTAL II</option>
+                    </optgroup>
+                    <optgroup label="ENSINO MÉDIO">
+                        <option value="1º EM">1º ANO - ENSINO MÉDIO</option>
+                        <option value="2º EM">2º ANO - ENSINO MÉDIO</option>
+                        <option value="3º EM">3º ANO - ENSINO MÉDIO</option>
+                    </optgroup>
+                </select>
+                
+                <div class="modal-neo-buttons">
+                    <button class="neo-btn neo-btn-primary" id="btnSalvarAluno">SALVAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
