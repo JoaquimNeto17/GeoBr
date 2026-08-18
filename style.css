@@ -11,6 +11,170 @@
     box-sizing: border-box;
 }
 
+/* ============================================================
+   GEO BR — IDENTIDADE VISUAL OFICIAL
+   ============================================================ */
+:root {
+    --bg: #f7f7fb;
+    --surface: #ffffff;
+    --text: #0b0a32;
+    --text-light: #5f6072;
+    --border: #0b0a32;
+    --border-light: #e2e2ea;
+    --primary: #0b0a32;
+    --primary-dark: #070621;
+    --primary-light: rgba(11, 10, 50, 0.08);
+    --primary-gradient: linear-gradient(135deg, #0b0a32 0%, #24235a 100%);
+    --success: #233b0b;
+    --success-bg: rgba(35, 59, 11, 0.12);
+    --error: #e55e5f;
+    --error-bg: rgba(229, 94, 95, 0.12);
+    --warning: #cca43b;
+    --gold: #cca43b;
+    --shadow: 0 16px 45px rgba(11, 10, 50, 0.12);
+    --shadow-sm: 0 8px 24px rgba(11, 10, 50, 0.10);
+    --shadow-lg: 0 24px 60px rgba(11, 10, 50, 0.16);
+    --font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+body {
+    background:
+        radial-gradient(circle at 8% 12%, rgba(204, 164, 59, .12), transparent 24%),
+        radial-gradient(circle at 92% 82%, rgba(11, 10, 50, .10), transparent 25%),
+        var(--bg);
+}
+
+.app { padding: 32px 20px; }
+.screen { max-width: 980px; }
+.card-neo,
+.modal-neo {
+    border: 1px solid var(--border-light);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+.neo-header { border-bottom: 0; padding: 34px 28px 30px; }
+.neo-title { font-size: clamp(36px, 7vw, 54px); letter-spacing: -2px; }
+.neo-title .highlight { color: var(--gold); -webkit-text-fill-color: var(--gold); }
+.neo-title .highlight::after { background: var(--gold); }
+.neo-perfil,
+.neo-modo,
+.neo-filtro { border-bottom: 1px solid var(--border-light); }
+.neo-stat,
+.neo-btn-modo,
+.neo-select,
+.neo-alt,
+.neo-bandeira,
+.neo-ranking,
+.neo-album-mini,
+.neo-bioma-tracker,
+.stat-row,
+.neo-input,
+.neo-select-modal {
+    border-color: var(--border-light) !important;
+    border-radius: 16px;
+}
+.neo-stat:hover,
+.neo-btn-modo:hover,
+.neo-alt:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.neo-btn,
+.neo-ranking-btn {
+    border-radius: 14px;
+    border-width: 1px;
+    box-shadow: none;
+}
+.neo-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.neo-btn-primary { background: var(--primary-gradient); }
+.neo-avatar-img { border: 1px solid var(--border-light); box-shadow: none; background: rgba(204,164,59,.10); }
+.neo-player-name { color: var(--text-light); font-weight: 800; font-size: 12px; letter-spacing: .08em; }
+
+.sound-toggle {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    font: 800 11px var(--font-family);
+    cursor: pointer;
+}
+.sound-toggle.muted { color: var(--text-light); background: #f0f0f4; }
+
+.neo-game-header { gap: 10px; flex-wrap: wrap; }
+.neo-game-player {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px 5px 5px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+}
+.neo-game-player img { width: 36px; height: 36px; object-fit: contain; border-radius: 50%; background: white; }
+.neo-lives { color: #ffb1b2; }
+.neo-lives.danger { animation: lifePulse .7s ease-in-out infinite alternate; }
+@keyframes lifePulse { to { transform: scale(1.08); } }
+
+.neo-btn-hint {
+    width: auto;
+    margin: 0 auto 14px;
+    padding: 10px 18px;
+    background: rgba(204,164,59,.12);
+    color: #80630d;
+    border-color: rgba(204,164,59,.35);
+}
+.neo-btn-hint:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+.neo-alt.hint-hidden { opacity: .16; pointer-events: none; filter: grayscale(1); }
+
+.notification { border-radius: 18px; border-width: 1px; }
+.notification-mascot { width: 72px; height: 72px; object-fit: contain; flex: 0 0 72px; animation: mascotIn .35s ease-out both; }
+@keyframes mascotIn { from { opacity: 0; transform: translateY(8px) scale(.88); } }
+.result-mascot { width: 150px; height: 150px; object-fit: contain; margin: -8px auto -20px; display: block; }
+
+.character-picker { border: 0; margin-top: 20px; }
+.character-picker legend { font-size: 11px; font-weight: 900; letter-spacing: .08em; color: var(--text-light); margin-bottom: 10px; }
+.character-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.character-option {
+    min-width: 0;
+    padding: 7px;
+    border: 2px solid var(--border-light);
+    border-radius: 15px;
+    background: #fafafd;
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    transition: .18s ease;
+}
+.character-option:hover { transform: translateY(-2px); border-color: var(--gold); }
+.character-option.selected { border-color: var(--primary); background: rgba(204,164,59,.13); box-shadow: 0 0 0 3px rgba(204,164,59,.22); }
+.character-option img { width: 100%; height: 92px; object-fit: contain; }
+.character-option strong,
+.character-option small { display: block; }
+.character-option strong { font-size: 12px; }
+.character-option small { color: var(--text-light); font-size: 9px; margin-top: 2px; }
+.character-error { color: var(--error); min-height: 18px; text-align: center; font-weight: 700; font-size: 12px; margin-top: 7px; }
+.ranking-avatar { width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(204,164,59,.12); }
+
+@media (max-width: 640px) {
+    .app { padding: 12px 8px 28px; }
+    .card-neo { border-radius: 18px; }
+    .sound-toggle { top: 10px; right: 10px; }
+    .sound-toggle span { display: none; }
+    .character-options { grid-template-columns: repeat(2, 1fr); }
+    .character-option img { height: 82px; }
+    .neo-game-player { width: 100%; justify-content: center; order: -1; }
+    .notification { align-items: center; }
+    .notification-mascot { width: 58px; height: 58px; flex-basis: 58px; }
+}
+
 :root {
     /* Cores Base */
     --bg: #F0F2F5;
@@ -55,7 +219,7 @@
     --spacing-2xl: 32px;
     
     /* Tipografia */
-    --font-family: 'Space Grotesk', 'Inter', monospace;
+    --font-family: 'Inter', 'Segoe UI', sans-serif;
     --font-weight-bold: 800;
     --font-weight-semibold: 600;
     --font-weight-medium: 500;
@@ -973,20 +1137,24 @@ body {
 }
 
 .neo-bandeira.bioma-mode::before {
-    content: "🌿";
+    content: "";
     position: absolute;
-    font-size: 120px;
-    opacity: 0.08;
+    width: 180px;
+    height: 180px;
+    border: 28px solid rgba(67,160,71,.14);
+    border-radius: 50%;
     right: -20px;
     bottom: -30px;
     pointer-events: none;
 }
 
 .neo-bandeira.bioma-mode::after {
-    content: "🌳";
+    content: "";
     position: absolute;
-    font-size: 80px;
-    opacity: 0.06;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(204,164,59,.1);
     left: -10px;
     top: -10px;
     pointer-events: none;
@@ -1865,3 +2033,34 @@ body {
 .mt-2 { margin-top: var(--spacing-lg); }
 .mb-1 { margin-bottom: var(--spacing-sm); }
 .mb-2 { margin-bottom: var(--spacing-lg); }
+.hidden { display: none !important; }
+
+/* Camada final: garante que a identidade GEO Mundo prevaleça sobre o tema legado. */
+:root {
+    --bg: #f7f7fb;
+    --surface: #ffffff;
+    --text: #0b0a32;
+    --text-light: #5f6072;
+    --border: #0b0a32;
+    --border-light: #e2e2ea;
+    --primary: #0b0a32;
+    --primary-dark: #070621;
+    --primary-light: rgba(11, 10, 50, 0.08);
+    --primary-gradient: linear-gradient(135deg, #0b0a32 0%, #24235a 100%);
+    --success: #233b0b;
+    --success-bg: rgba(35, 59, 11, 0.12);
+    --error: #e55e5f;
+    --error-bg: rgba(229, 94, 95, 0.12);
+    --gold: #cca43b;
+    --shadow: 0 16px 45px rgba(11, 10, 50, 0.12);
+    --shadow-sm: 0 8px 24px rgba(11, 10, 50, 0.10);
+    --shadow-lg: 0 24px 60px rgba(11, 10, 50, 0.16);
+    --font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+body { background: radial-gradient(circle at 8% 12%, rgba(204,164,59,.12), transparent 24%), radial-gradient(circle at 92% 82%, rgba(11,10,50,.10), transparent 25%), var(--bg); }
+.card-neo, .modal-neo { border: 1px solid var(--border-light); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; }
+.neo-header { border-bottom: 0; }
+.neo-perfil, .neo-modo, .neo-filtro { border-bottom: 1px solid var(--border-light); }
+.neo-stat, .neo-btn-modo, .neo-select, .neo-alt, .neo-bandeira, .neo-ranking, .neo-album-mini, .neo-bioma-tracker, .stat-row, .neo-input, .neo-select-modal { border-color: var(--border-light) !important; border-radius: 16px; }
+.neo-btn, .neo-ranking-btn { border-radius: 14px; border-width: 1px; box-shadow: none; }
+.neo-btn-primary { background: var(--primary-gradient); }

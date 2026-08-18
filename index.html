@@ -3,18 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Missão Brasil | Bandeiras, Capitais e Biomas</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    <title>GEO BR | Bandeiras, Capitais e Biomas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="geobr-theme.css" id="geobrTheme">
+    <link rel="stylesheet" href="quiz-geobr.css">
+    <link rel="stylesheet" href="geomundo-reference.css">
 </head>
 <body>
+    <!-- ABERTURA OFICIAL DO GEO BR -->
+    <section id="geoBrOpening" class="menu-screen geo-br-opening">
+        <button class="sound-toggle sound-toggle-menu" id="btnSom" type="button" aria-label="Desativar sons" aria-pressed="true">
+            <span class="sound-toggle-icon" aria-hidden="true"><i class="fas fa-volume-high"></i></span>
+            <span class="sound-toggle-label">SOM</span>
+        </button>
 
-    <div class="app" id="appRoot">
+        <div class="floating-bubbles" aria-hidden="true">
+            <div class="bubble" style="width:120px;height:120px;background:var(--gold-soft);top:5%;left:2%;animation-duration:14s;opacity:.6"></div>
+            <div class="bubble" style="width:80px;height:80px;background:var(--red-soft);top:75%;right:3%;animation-duration:10s;animation-delay:1.5s"></div>
+            <div class="bubble" style="width:160px;height:160px;background:var(--blue-glow);bottom:5%;left:8%;animation-duration:18s;animation-delay:2s"></div>
+            <div class="bubble" style="width:60px;height:60px;background:var(--green-soft);top:20%;right:12%;animation-duration:9s"></div>
+            <div class="bubble" style="width:45px;height:45px;background:var(--gold-soft);top:10%;right:25%;animation-duration:7s"></div>
+        </div>
+
+        <main class="geo-opening-content">
+            <header class="geo-opening-brand">
+                <div class="menu-logo brand-symbol">
+                    <img src="assets/branding/geobr-biomas-logo.webp" alt="Logo GEO BR com os biomas brasileiros">
+                </div>
+                <h1 class="menu-title">GEO <span>BR</span></h1>
+                <p class="menu-subtitle">Explore o Brasil, conquiste estados e domine a geografia</p>
+            </header>
+
+            <div class="opening-lower-grid">
+                <section class="opening-ranking ranking-box">
+                    <div class="ranking-box-header">
+                        <strong>RANKING</strong>
+                        <div class="ranking-header-actions">
+                            <button id="btnLimparRankingAbertura" class="ranking-clear-btn" type="button" aria-label="Limpar ranking">
+                                LIMPAR
+                            </button>
+                        </div>
+                    </div>
+                    <div id="rankingListAbertura"></div>
+                </section>
+            </div>
+
+            <section class="opening-modes" aria-label="Modos de jogo">
+                <div class="mode-card-grid">
+                    <button class="mode-card geo-mode-card primary" type="button" data-modo="bandeiras">
+                        <span class="mode-card-copy"><strong>BANDEIRAS</strong></span>
+                    </button>
+                    <button class="mode-card geo-mode-card" type="button" data-modo="capitais">
+                        <span class="mode-card-copy"><strong>CAPITAIS</strong></span>
+                    </button>
+                    <button class="mode-card geo-mode-card" type="button" data-modo="biomas">
+                        <span class="mode-card-copy"><strong>BIOMAS</strong></span>
+                    </button>
+                </div>
+            </section>
+            <p class="opening-footer">GEO BR 2026</p>
+        </main>
+    </section>
+
+    <div class="app hidden" id="appRoot">
         
         <!-- ========== TELA INICIAL ========== -->
-        <div id="telaInicial" class="screen active">
+        <div id="telaInicial" class="screen">
             <div class="card-neo">
                 
                 <!-- HEADER REFORMULADO - SEM BANDEIRA DE FUNDO -->
@@ -33,7 +88,7 @@
                     
                     <!-- Título principal -->
                     <h1 class="neo-title">
-                        MISSÃO <span class="highlight">BRASIL</span>
+                        GEO <span class="highlight">BR</span>
                     </h1>
                     
                     <!-- Subtítulo -->
@@ -66,8 +121,9 @@
 
                 <div class="neo-perfil">
                     <div class="neo-avatar">
-                        <img src="img/GeoBr.png" alt="Arara Azul" class="neo-avatar-img" id="avatarArara">
+                        <img src="assets/personagens/classic_1.webp" alt="Personagem do jogador" class="neo-avatar-img" id="avatarArara">
                         <div>
+                            <span class="neo-player-name" id="nomeJogadorMenu">JOGADOR</span>
                             <span class="neo-nivel" id="nivelJogador">EXPLORADOR</span>
                             <span class="neo-proximo" id="proximoNivel">PRÓXIMO: CONHECEDOR</span>
                         </div>
@@ -125,12 +181,12 @@
                 <div class="neo-filtro" id="containerFiltro">
                     <label class="neo-label"><i class="fas fa-map"></i> FILTRAR POR REGIÃO</label>
                     <select id="filtroRegiao" class="neo-select">
-                        <option value="all">🌎 TODAS AS REGIÕES (27)</option>
-                        <option value="Norte">🌴 NORTE (7)</option>
-                        <option value="Nordeste">🏖️ NORDESTE (9)</option>
-                        <option value="Centro-Oeste">🏞️ CENTRO-OESTE (4)</option>
-                        <option value="Sudeste">🏙️ SUDESTE (4)</option>
-                        <option value="Sul">❄️ SUL (3)</option>
+                        <option value="all">TODAS AS REGIÕES (27)</option>
+                        <option value="Norte">NORTE (7)</option>
+                        <option value="Nordeste">NORDESTE (9)</option>
+                        <option value="Centro-Oeste">CENTRO-OESTE (4)</option>
+                        <option value="Sudeste">SUDESTE (4)</option>
+                        <option value="Sul">SUL (3)</option>
                     </select>
                 </div>
 
@@ -159,7 +215,7 @@
                     <div class="neo-ranking-header">
                         <i class="fas fa-crown"></i> RANKING
                         <div>
-                            <button id="btnResetarRanking" class="neo-ranking-btn neo-ranking-btn-danger" title="Resetar Ranking (Professor)">
+                            <button id="btnResetarRanking" class="neo-ranking-btn neo-ranking-btn-danger" title="Limpar ranking">
                                 <i class="fas fa-trash-alt"></i> RESETAR
                             </button>
                             <button id="btnTrocarNome" class="neo-ranking-btn"><i class="fas fa-user-edit"></i> EDITAR</button>
@@ -189,53 +245,69 @@
         </div>
 
         <!-- ========== TELA DE JOGO ========== -->
-        <div id="telaJogo" class="screen">
-            <div class="card-neo">
-                
-                <div class="neo-game-header">
-                    <div class="neo-game-stat">
-                        <i class="fas fa-list-ol"></i>
-                        <span id="progressoAtual">1</span>/<span id="totalPerguntas">27</span>
-                    </div>
-                    <div class="neo-game-stat">
-                        <i class="fas fa-hourglass-half"></i>
-                        <span id="timerSegundos">05</span>s
-                    </div>
-                    <div class="neo-game-stat">
-                        <i class="fas fa-star"></i>
-                        <span id="pontuacaoAtual">0</span>
-                    </div>
-                    <div class="neo-game-stat neo-combo">
-                        <i class="fas fa-fire"></i>
-                        <span id="comboAtual">0</span>x
-                    </div>
-                </div>
+        <section id="telaJogo" class="screen geobr-quiz-screen" aria-label="Quiz GEO BR">
+            <div class="floating-bubbles quiz-bubbles" aria-hidden="true">
+                <div class="bubble quiz-bubble-one"></div>
+                <div class="bubble quiz-bubble-two"></div>
+                <div class="bubble quiz-bubble-three"></div>
+            </div>
 
-                <div class="neo-pergunta">
-                    <div class="neo-pergunta-icon" id="perguntaIcon">
-                        <i class="fas fa-flag"></i>
+            <header class="topbar geobr-quiz-topbar">
+                <button class="btn-voltar" id="btnVoltarMenu" type="button">
+                    <span>MENU</span>
+                </button>
+                <div class="quiz-logo-brand" aria-label="GEO BR">
+                    <img src="assets/branding/geobr-biomas-logo.webp" alt="Logo GEO BR com os biomas brasileiros">
+                </div>
+                <div class="topbar-player-info">
+                    <div class="hud-player">
+                        <img id="avatarJogo" src="assets/personagens/classic_1.webp" alt="Personagem do jogador">
+                        <span id="nomeJogadorJogo">JOGADOR</span>
                     </div>
-                    <div class="neo-pergunta-texto" id="perguntaTexto">
-                        QUAL ESTADO POSSUI ESTA BANDEIRA?
-                    </div>
-                    <div class="neo-bandeira" id="containerImagem">
-                        <img id="bandeiraImg" class="neo-bandeira-img" src="" alt="Bandeira">
-                        <div id="biomaImgContainer" style="display: none;">
-                            <img id="biomaImg" class="neo-bioma-img" src="" alt="Bioma">
+                    <div class="hud-stat"><small>PERGUNTA</small><strong><span id="progressoAtual">1</span>/<span id="totalPerguntas">27</span></strong></div>
+                    <div class="hud-stat"><small>TEMPO</small><strong><span id="timerSegundos">05</span>s</strong></div>
+                    <div class="hud-stat"><small>PONTOS</small><strong><span id="pontuacaoAtual">0</span></strong></div>
+                </div>
+            </header>
+
+            <div class="game-layout geobr-game-layout">
+                <div class="map-column geobr-visual-column">
+                    <div class="geobr-visual-stage">
+                        <div class="visual-mode-icon" id="perguntaIcon" hidden></div>
+                        <div class="neo-bandeira" id="containerImagem">
+                            <img id="bandeiraImg" class="neo-bandeira-img" src="" alt="Bandeira do estado">
+                            <div id="biomaImgContainer" hidden>
+                                <img id="biomaImg" class="neo-bioma-img" src="" alt="Paisagem do bioma">
+                            </div>
                         </div>
                     </div>
+                    <div class="map-hint geobr-mode-caption">
+                        <span id="modoQuizLabel">DESAFIO DE BANDEIRAS</span>
+                    </div>
                 </div>
 
-                <div class="neo-alternativas" id="containerAlternativas"></div>
-                
-                <div class="neo-feedback" id="areaFeedback"></div>
+                <div class="quiz-column geobr-quiz-column">
+                    <div class="question-card">
+                        <div class="eyebrow">PERGUNTA</div>
+                        <div class="question-text" id="perguntaTexto">QUAL ESTADO POSSUI ESTA BANDEIRA?</div>
+                    </div>
 
-                <button class="neo-btn neo-btn-back" id="btnVoltarMenu">
-                    <i class="fas fa-home"></i> VOLTAR AO MENU
-                </button>
+                    <div class="answers neo-alternativas" id="containerAlternativas"></div>
+                    <div class="neo-feedback" id="areaFeedback" aria-live="polite"></div>
 
+                    <div class="quiz-footer geobr-quiz-footer">
+                        <div class="lives neo-lives" id="vidasJogo" aria-label="3 vidas">
+                            <span id="vidasAtual">3</span>
+                            <small>VIDAS</small>
+                        </div>
+                        <div class="streak-badge">SEQUÊNCIA <strong><span id="comboAtual">0</span>x</strong></div>
+                        <button class="hint-btn neo-btn-hint" id="btnDica" type="button">
+                            DICA
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
 
         <!-- ========== TELA ÁLBUM ========== -->
         <div id="telaAlbum" class="screen">
@@ -256,41 +328,37 @@
         <!-- ========== TELA RESULTADO ========== -->
         <div id="telaResultado" class="screen">
             <div class="card-neo neo-resultado">
-                <div class="neo-trofeu">
-                    <i class="fas fa-crown"></i>
-                    <i class="fas fa-trophy"></i>
-                    <i class="fas fa-medal"></i>
-                </div>
-                <h1>MISSÃO CUMPRIDA!</h1>
+                <img id="mascoteResultado" class="result-mascot" src="assets/personagens/classic_2.webp" alt="Personagem comemorando">
+                <h1 id="tituloResultado">MISSÃO CUMPRIDA!</h1>
                 <div class="neo-resultado-stats">
                     <div class="stat-row">
-                        <span class="stat-label"><i class="fas fa-bullseye"></i> ACERTOS</span>
+                        <span class="stat-label">ACERTOS</span>
                         <span class="stat-value">
                             <span id="finalAcertos" class="highlight-green">0</span>
                             <span class="stat-small">/ <span id="finalTotal">27</span></span>
                         </span>
                     </div>
                     <div class="stat-row">
-                        <span class="stat-label"><i class="fas fa-chart-line"></i> PRECISÃO</span>
+                        <span class="stat-label">PRECISÃO</span>
                         <span class="stat-value">
                             <span id="finalPrecisao" class="highlight-blue">0</span>
                             <span class="stat-percent">%</span>
                         </span>
                     </div>
                     <div class="stat-row">
-                        <span class="stat-label"><i class="fas fa-clock"></i> TEMPO TOTAL</span>
+                        <span class="stat-label">TEMPO TOTAL</span>
                         <span class="stat-value">
                             <span id="finalTempo" class="highlight-gold">00:00</span>
                         </span>
                     </div>
                     <div class="stat-row">
-                        <span class="stat-label"><i class="fas fa-medal"></i> PATENTE</span>
+                        <span class="stat-label">PATENTE</span>
                         <span class="stat-value">
                             <span id="finalPatente" class="highlight-blue">EXPLORADOR</span>
                         </span>
                     </div>
                     <div class="stat-row">
-                        <span class="stat-label"><i class="fas fa-fire"></i> MAIOR COMBO</span>
+                        <span class="stat-label">MAIOR COMBO</span>
                         <span class="stat-value">
                             <span id="finalMaxCombo" class="highlight-gold">0</span>
                             <span class="stat-x">x</span>
@@ -299,10 +367,13 @@
                 </div>
                 <div class="neo-resultado-buttons">
                     <button class="neo-btn neo-btn-primary" id="btnJogarNovamente">
-                        <i class="fas fa-redo-alt"></i> JOGAR NOVAMENTE
+                        JOGAR NOVAMENTE
                     </button>
                     <button class="neo-btn neo-btn-secondary" id="btnVerAlbum">
-                        <i class="fas fa-book"></i> VER ÁLBUM
+                        VER ÁLBUM
+                    </button>
+                    <button class="neo-btn neo-btn-secondary" id="btnMenuResultado">
+                        MENU PRINCIPAL
                     </button>
                 </div>
             </div>
@@ -354,64 +425,34 @@
         </div>
     </div>
 
-    <div id="modalResetRanking" class="modal">
-        <div class="modal-neo modal-neo-small">
-            <div class="modal-neo-header">
-                <h2><i class="fas fa-exclamation-triangle"></i> RESETAR RANKING</h2>
-            </div>
-            <div class="modal-neo-body">
-                <p>ATENÇÃO PROFESSOR! Isso apagará TODO o ranking de todos os alunos.</p>
-                <p>Digite a senha para confirmar:</p>
-                <input type="password" id="senhaResetRanking" placeholder="Senha do Professor" class="neo-input">
-                <div class="modal-neo-buttons">
-                    <button class="neo-btn neo-btn-danger" id="btnConfirmarResetRanking">RESETAR RANKING</button>
-                    <button class="neo-btn neo-btn-secondary" id="btnCancelarResetRanking">CANCELAR</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL PARA DADOS DO ALUNO -->
-    <div id="modalAluno" class="modal">
-        <div class="modal-neo modal-neo-small">
-            <div class="modal-neo-header">
-                <h2><i class="fas fa-user-graduate"></i> DADOS DO ALUNO</h2>
-                <button class="modal-neo-close" id="btnFecharModalAluno">&times;</button>
-            </div>
-            <div class="modal-neo-body">
-                <label class="neo-label-modal">NOME</label>
-                <input type="text" id="alunoNome" placeholder="Digite seu nome" maxlength="30" class="neo-input">
-                
-                <label class="neo-label-modal">SÉRIE</label>
-                <select id="alunoSerie" class="neo-select-modal">
-                    <option value="">Selecione a série</option>
-                    <optgroup label="ENSINO FUNDAMENTAL I">
-                        <option value="1º EF">1º ANO - ENSINO FUNDAMENTAL I</option>
-                        <option value="2º EF">2º ANO - ENSINO FUNDAMENTAL I</option>
-                        <option value="3º EF">3º ANO - ENSINO FUNDAMENTAL I</option>
-                        <option value="4º EF">4º ANO - ENSINO FUNDAMENTAL I</option>
-                        <option value="5º EF">5º ANO - ENSINO FUNDAMENTAL I</option>
-                    </optgroup>
-                    <optgroup label="ENSINO FUNDAMENTAL II">
-                        <option value="6º EF">6º ANO - ENSINO FUNDAMENTAL II</option>
-                        <option value="7º EF">7º ANO - ENSINO FUNDAMENTAL II</option>
-                        <option value="8º EF">8º ANO - ENSINO FUNDAMENTAL II</option>
-                        <option value="9º EF">9º ANO - ENSINO FUNDAMENTAL II</option>
-                    </optgroup>
-                    <optgroup label="ENSINO MÉDIO">
-                        <option value="1º EM">1º ANO - ENSINO MÉDIO</option>
-                        <option value="2º EM">2º ANO - ENSINO MÉDIO</option>
-                        <option value="3º EM">3º ANO - ENSINO MÉDIO</option>
-                    </optgroup>
-                </select>
-                
-                <div class="modal-neo-buttons">
-                    <button class="neo-btn neo-btn-primary" id="btnSalvarAluno">SALVAR</button>
+    <div id="modalAluno" class="modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="tituloModalAluno">
+        <div class="profile-modal-panel player-setup-panel">
+            <div class="profile-modal-content">
+                <h2 id="tituloModalAluno" class="player-setup-title">CRIE SEU EXPLORADOR</h2>
+                <p class="player-setup-desc">Informe seu nome e escolha uma expressão para aparecer no ranking.</p>
+
+                <label class="player-setup-label" for="alunoNome">SEU NOME</label>
+                <input type="text" id="alunoNome" placeholder="Digite seu nome" maxlength="20" class="text-input" autocomplete="name">
+
+                <fieldset class="character-picker avatar-picker">
+                    <legend>ESCOLHA SEU PERSONAGEM</legend>
+                    <div id="characterOptions" class="character-options avatar-options"></div>
+                </fieldset>
+                <p id="characterError" class="character-error player-setup-error" role="alert"></p>
+
+                <div class="profile-modal-actions player-setup-actions">
+                    <button class="btn btn-primary" id="btnSalvarAluno" type="button">COMEÇAR</button>
+                    <button class="btn btn-outline" id="btnCancelarAluno" type="button">CANCELAR</button>
                 </div>
+
+                <button class="hidden" id="btnFecharModalAluno" type="button" tabindex="-1" aria-hidden="true">FECHAR</button>
             </div>
         </div>
     </div>
 
+    <script src="characters.js"></script>
+    <script src="sound.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

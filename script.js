@@ -34,14 +34,14 @@ const estadosAPI = [
 // Lista de biomas para alternativas
 const biomasList = ["Amazônia", "Cerrado", "Mata Atlântica", "Caatinga", "Pantanal", "Pampa"];
 
-// Ícones para cada bioma
+// Ícone visual único: o quiz não usa emojis nas alternativas.
 const biomaIcons = {
-    "Amazônia": "🌳",
-    "Cerrado": "🌾",
-    "Mata Atlântica": "🌿",
-    "Caatinga": "🌵",
-    "Pantanal": "🐊",
-    "Pampa": "🌄"
+    "Amazônia": "fa-tree",
+    "Cerrado": "fa-seedling",
+    "Mata Atlântica": "fa-leaf",
+    "Caatinga": "fa-sun",
+    "Pantanal": "fa-water",
+    "Pampa": "fa-mountain-sun"
 };
 
 // Cores para cada bioma
@@ -64,6 +64,35 @@ const xpThresholds = [0, 30, 100, 220, 420];
 // RANKING ESCOLAR
 // ============================================================
 let ranking = [];
+const PERFIS_JOGADORES_KEY = "geo_suite_profiles";
+
+function carregarPerfisJogadores() {
+    try {
+        return JSON.parse(localStorage.getItem(PERFIS_JOGADORES_KEY)) || {};
+    } catch {
+        return {};
+    }
+}
+
+function buscarPerfilJogador(nome) {
+    return carregarPerfisJogadores()[normalizarNomeJogador(nome)] || null;
+}
+
+function salvarPerfilJogador(nome, xp, personagem, patente) {
+    if (!nome) return;
+    const perfis = carregarPerfisJogadores();
+    const chave = normalizarNomeJogador(nome);
+    const anterior = perfis[chave] || {};
+    perfis[chave] = {
+        ...anterior,
+        nome: String(nome).trim().replace(/\s+/g, " "),
+        xp: Number(xp) || 0,
+        personagem: normalizarPersonagem(personagem),
+        patente: patente || "EXPLORADOR",
+        atualizadoEm: Date.now()
+    };
+    localStorage.setItem(PERFIS_JOGADORES_KEY, JSON.stringify(perfis));
+}
 
 function carregarRanking() {
     const saved = localStorage.getItem("missaoBrasil_ranking");
@@ -88,6 +117,12 @@ function resetarRankingCompleto() {
     mostrarNotificacao("RANKING RESETADO COM SUCESSO!", "info");
 }
 
+function limparRankingComoGeoMundo() {
+    const confirmado = confirm("Tem certeza que deseja apagar todo o ranking? Essa ação não pode ser desfeita.");
+    if (!confirmado) return;
+    resetarRankingCompleto();
+}
+
 function atualizarRankingUI() {
     const container = document.getElementById("rankingList");
     if (!container) return;
@@ -101,13 +136,11 @@ function atualizarRankingUI() {
         if (i < ranking.length && ranking[i]) {
             const item = ranking[i];
             let posicaoTexto = "";
-            if (i === 0) posicaoTexto = "🥇";
-            else if (i === 1) posicaoTexto = "🥈";
-            else if (i === 2) posicaoTexto = "🥉";
-            else posicaoTexto = `${i+1}º`;
+            posicaoTexto = `${i+1}º`;
             
             div.innerHTML = `
                 <div class="ranking-pos">${posicaoTexto}</div>
+                <img class="ranking-avatar" src="${caminhoPersonagem(item.personagem, 1)}" alt="">
                 <div class="ranking-nome">${item.nome}</div>
                 <div class="ranking-serie">${item.serie || "---"}</div>
                 <div class="ranking-xp">${item.xp} XP</div>
@@ -115,10 +148,7 @@ function atualizarRankingUI() {
         } else {
             div.classList.add("placeholder");
             let posicaoTexto = "";
-            if (i === 0) posicaoTexto = "🥇";
-            else if (i === 1) posicaoTexto = "🥈";
-            else if (i === 2) posicaoTexto = "🥉";
-            else posicaoTexto = `${i+1}º`;
+            posicaoTexto = `${i+1}º`;
             
             div.innerHTML = `
                 <div class="ranking-pos">${posicaoTexto}</div>
@@ -129,18 +159,70 @@ function atualizarRankingUI() {
         }
         container.appendChild(div);
     }
+
+    renderizarRankingAbertura();
 }
 
-function adicionarOuAtualizarRanking(nome, serie, xp, patente) {
+function renderizarRankingAbertura() {
+    const container = document.getElementById("rankingListAbertura");
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (!ranking.length) {
+        const vazio = document.createElement("p");
+        vazio.className = "ranking-empty";
+        vazio.textContent = "Nenhum explorador no ranking. Seja o primeiro!";
+        container.appendChild(vazio);
+        return;
+    }
+
+    ranking.slice(0, 5).forEach((item, index) => {
+        const linha = document.createElement("div");
+        linha.className = `ranking-row${item.nome === player.nome ? " destaque" : ""}`;
+
+        const posicao = document.createElement("span");
+        posicao.className = "ranking-pos";
+        posicao.textContent = `${index + 1}º`;
+
+        const avatar = document.createElement("img");
+        avatar.className = "ranking-avatar";
+        avatar.src = caminhoPersonagem(item.personagem, 1);
+        avatar.alt = "";
+
+        const dados = document.createElement("span");
+        dados.className = "opening-ranking-player";
+        const nome = document.createElement("strong");
+        nome.textContent = item.nome;
+        const patente = document.createElement("small");
+        patente.textContent = item.patente || "EXPLORADOR";
+        dados.append(nome, patente);
+
+        const xp = document.createElement("span");
+        xp.className = "ranking-xp";
+        xp.textContent = `${item.xp} XP`;
+        linha.append(posicao, avatar, dados, xp);
+        container.appendChild(linha);
+    });
+}
+
+function normalizarNomeJogador(nome) {
+    return String(nome || "").trim().replace(/\s+/g, " ").toLocaleUpperCase("pt-BR");
+}
+
+function adicionarOuAtualizarRanking(nome, serie, xp, patente, personagem = "classica") {
     if (!nome || !serie) return;
     
-    const index = ranking.findIndex(p => p.nome === nome && p.serie === serie);
+    const nomeNormalizado = normalizarNomeJogador(nome);
+    const index = ranking.findIndex(p => normalizarNomeJogador(p.nome) === nomeNormalizado);
     if (index !== -1) {
-        ranking[index].xp = xp;
-        ranking[index].patente = patente;
+        const novoRecorde = xp >= ranking[index].xp;
+        ranking[index].xp = Math.max(ranking[index].xp, xp);
+        if (novoRecorde) ranking[index].patente = patente;
+        ranking[index].personagem = normalizarPersonagem(personagem);
     } else {
-        ranking.push({ nome, serie, xp, patente });
+        ranking.push({ nome, serie, xp, patente, personagem: normalizarPersonagem(personagem) });
     }
+    salvarPerfilJogador(nome, xp, personagem, patente);
     salvarRanking();
     atualizarRankingUI();
 }
@@ -150,7 +232,8 @@ function adicionarOuAtualizarRanking(nome, serie, xp, patente) {
 // ============================================================
 let player = {
     nome: "",
-    serie: "",
+    serie: "GEO BR",
+    personagem: "classica",
     xp: 0,
     totalCorrect: 0,
     unlockedStates: new Array(27).fill(false),
@@ -163,6 +246,22 @@ let player = {
         southeastComplete: false, southComplete: false, allFlags: false
     }
 };
+
+let modoPendenteAbertura = null;
+
+function prepararNovoJogador() {
+    player.nome = "";
+    player.xp = 0;
+    player.totalCorrect = 0;
+    player.unlockedStates = new Array(27).fill(false);
+    player.levelIndex = 0;
+    player.maxCombo = 0;
+    player.achievements = {
+        firstHit: false, fiveCombo: false, northComplete: false,
+        northeastComplete: false, centerwestComplete: false,
+        southeastComplete: false, southComplete: false, allFlags: false
+    };
+}
 
 // ============================================================
 // GAME SESSION
@@ -181,7 +280,9 @@ let gameSession = {
     sessionMaxCombo: 0,
     modoJogo: "bandeiras",
     tempoQuestao: 5,
-    tempoRestante: 5
+    tempoRestante: 5,
+    vidas: 3,
+    dicaUsada: false
 };
 
 // ============================================================
@@ -189,8 +290,8 @@ let gameSession = {
 // ============================================================
 function salvarLocal() {
     localStorage.setItem("missaoBrasil_neo", JSON.stringify({
-        nome: player.nome,
         serie: player.serie,
+        personagem: player.personagem,
         xp: player.xp,
         totalCorrect: player.totalCorrect,
         unlocked: player.unlockedStates,
@@ -205,8 +306,10 @@ function carregarLocal() {
     const data = localStorage.getItem("missaoBrasil_neo");
     if (data) {
         const p = JSON.parse(data);
-        player.nome = p.nome || "";
-        player.serie = p.serie || "";
+        // O nome identifica apenas a sessão atual e nunca é recuperado do navegador.
+        player.nome = "";
+        player.serie = "GEO BR";
+        player.personagem = normalizarPersonagem(p.personagem);
         player.xp = p.xp || 0;
         player.totalCorrect = p.totalCorrect || 0;
         player.unlockedStates = p.unlocked || new Array(27).fill(false);
@@ -220,20 +323,17 @@ function carregarLocal() {
         };
     }
     
-    if (!player.nome || !player.serie) {
-        abrirModalAluno();
-    } else {
-        adicionarOuAtualizarRanking(player.nome, player.serie, player.xp, patentes[player.levelIndex]);
-    }
-    
     atualizarPatente();
     atualizarModoUI();
+    // Migra automaticamente registros antigos, removendo o nome do perfil local.
+    salvarLocal();
 }
 
 function resetarProgresso() {
     player = {
         nome: player.nome,
         serie: player.serie,
+        personagem: player.personagem,
         xp: 0,
         totalCorrect: 0,
         unlockedStates: new Array(27).fill(false),
@@ -248,7 +348,7 @@ function resetarProgresso() {
     };
     salvarLocal();
     if (player.nome && player.serie) {
-        adicionarOuAtualizarRanking(player.nome, player.serie, player.xp, patentes[player.levelIndex]);
+        adicionarOuAtualizarRanking(player.nome, player.serie, player.xp, patentes[player.levelIndex], player.personagem);
     }
     atualizarPatente();
     atualizarUI();
@@ -278,7 +378,7 @@ function adicionarXP(valor) {
     atualizarBarraXP();
     
     if (player.nome && player.serie) {
-        adicionarOuAtualizarRanking(player.nome, player.serie, player.xp, patentes[player.levelIndex]);
+        adicionarOuAtualizarRanking(player.nome, player.serie, player.xp, patentes[player.levelIndex], player.personagem);
     }
     
     if (player.levelIndex > nivelAntigo) {
@@ -315,24 +415,22 @@ function mostrarNotificacao(mensagem, tipo, xpBonus = null) {
     if (!feedback) return;
     
     let tipoClass = "notification-info";
-    let icone = "fa-info-circle";
-    
     if (tipo === "acerto") {
         tipoClass = "notification-correct";
-        icone = "fa-check-circle";
     } else if (tipo === "erro") {
         tipoClass = "notification-wrong";
-        icone = "fa-times-circle";
     }
     
     let xpHtml = "";
     if (xpBonus !== null) {
-        xpHtml = `<div class="notification-xp"><i class="fas fa-bolt"></i> +${xpBonus} XP</div>`;
+        xpHtml = `<div class="notification-xp">+${xpBonus} XP</div>`;
     }
     
+    const reacao = tipo === "acerto" ? 2 : (tipo === "erro" ? 3 : 1);
+    if (tipo === "acerto" || tipo === "erro") tocarSom(tipo);
     feedback.innerHTML = `
         <div class="notification ${tipoClass}">
-            <i class="fas ${icone}"></i>
+            <img class="notification-mascot" src="${caminhoPersonagem(player.personagem, reacao)}" alt="">
             <div class="notification-content">
                 <div class="notification-title">${tipo === "acerto" ? "ACERTOU!" : (tipo === "erro" ? "ERROU!" : "ATENÇÃO")}</div>
                 <div class="notification-desc">${mensagem}</div>
@@ -349,7 +447,7 @@ function desbloquearConquista(id, nome) {
     if (player.achievements[id]) return;
     player.achievements[id] = true;
     salvarLocal();
-    mostrarNotificacao(`🏆 CONQUISTA: ${nome}`, "info");
+    mostrarNotificacao(`CONQUISTA: ${nome}`, "info");
 }
 
 function verificarConquistas() {
@@ -375,10 +473,21 @@ function verificarConquistas() {
 // UI
 // ============================================================
 function atualizarUI() {
+    document.getElementById("nomeJogadorMenu").innerText = player.nome || "JOGADOR";
+    document.getElementById("nomeJogadorJogo").innerText = player.nome || "JOGADOR";
+    atualizarAvatares();
     document.getElementById("nivelJogador").innerText = patentes[player.levelIndex];
     document.getElementById("totalXP").innerText = player.xp;
     document.getElementById("totalAcertos").innerText = player.totalCorrect;
     document.getElementById("maxCombo").innerText = player.maxCombo;
+    const avatarAbertura = document.getElementById("avatarAbertura");
+    if (avatarAbertura) avatarAbertura.src = caminhoPersonagem(player.personagem, 1);
+    const nomeAbertura = document.getElementById("nomeJogadorAbertura");
+    if (nomeAbertura) nomeAbertura.innerText = player.nome || "NOVO EXPLORADOR";
+    const nivelAbertura = document.getElementById("nivelJogadorAbertura");
+    if (nivelAbertura) nivelAbertura.innerText = player.nome ? patentes[player.levelIndex] : "Escolha um modo para começar";
+    const xpAbertura = document.getElementById("xpAbertura");
+    if (xpAbertura) xpAbertura.innerText = player.xp;
     
     const desbloq = player.unlockedStates.filter(u => u).length;
     document.getElementById("bandeirasDesbloqueadas").innerHTML = `${desbloq}<span class="neo-stat-small">/27</span>`;
@@ -399,7 +508,7 @@ function atualizarUI() {
         btnAlbum.title = `Desbloqueie todas as 27 bandeiras para ver o álbum completo! (${desbloq}/27)`;
     } else {
         btnAlbum.classList.remove("locked");
-        btnAlbum.innerHTML = `<i class="fas fa-book"></i> ÁLBUM COMPLETO ✨`;
+        btnAlbum.innerHTML = `<i class="fas fa-book"></i> ÁLBUM COMPLETO`;
         btnAlbum.title = "Álbum completo desbloqueado!";
     }
     
@@ -409,7 +518,7 @@ function atualizarUI() {
             btnAlbumResultado.innerHTML = `<i class="fas fa-book"></i> VER ÁLBUM (${desbloq}/27)`;
             btnAlbumResultado.title = `Desbloqueie todas as 27 bandeiras para ver o álbum completo! (${desbloq}/27)`;
         } else {
-            btnAlbumResultado.innerHTML = `<i class="fas fa-book"></i> VER ÁLBUM ✨`;
+            btnAlbumResultado.innerHTML = `<i class="fas fa-book"></i> VER ÁLBUM`;
             btnAlbumResultado.title = "Álbum completo desbloqueado!";
         }
     }
@@ -468,12 +577,12 @@ function atualizarBiomaTracker() {
     if (!container) return;
     
     const biomaData = [
-        { nome: "Amazônia", icon: "🌳" },
-        { nome: "Cerrado", icon: "🌾" },
-        { nome: "Mata Atlântica", icon: "🌿" },
-        { nome: "Caatinga", icon: "🌵" },
-        { nome: "Pantanal", icon: "🐊" },
-        { nome: "Pampa", icon: "🌄" }
+        { nome: "Amazônia", icon: "fa-tree" },
+        { nome: "Cerrado", icon: "fa-seedling" },
+        { nome: "Mata Atlântica", icon: "fa-leaf" },
+        { nome: "Caatinga", icon: "fa-sun" },
+        { nome: "Pantanal", icon: "fa-water" },
+        { nome: "Pampa", icon: "fa-mountain-sun" }
     ];
     
     container.innerHTML = "";
@@ -486,7 +595,7 @@ function atualizarBiomaTracker() {
         const div = document.createElement("div");
         div.className = `bioma-tracker-item ${unlocked ? 'unlocked' : 'locked'}`;
         div.innerHTML = `
-            <span class="bioma-icon">${bioma.icon}</span>
+            <span class="bioma-icon"><i class="fas ${bioma.icon}" aria-hidden="true"></i></span>
             <span>${bioma.nome}</span>
         `;
         container.appendChild(div);
@@ -551,7 +660,7 @@ function obterAlternativas(correta, tipo) {
         }
         return alternativas.map(alt => ({
             nome: alt,
-            icon: biomaIcons[alt] || "🌍",
+            icon: biomaIcons[alt] || "fa-leaf",
             className: `bioma-${alt.toLowerCase().replace(/ /g, '-')}`
         }));
     } else if (tipo === "bandeira") {
@@ -589,23 +698,42 @@ function animarPonto() {
     setTimeout(() => pontuacaoSpan.style.transform = "scale(1)", 150);
 }
 
+function atualizarVidas() {
+    const valor = document.getElementById("vidasAtual");
+    const container = document.getElementById("vidasJogo");
+    if (valor) valor.innerText = gameSession.vidas;
+    if (container) {
+        container.classList.toggle("danger", gameSession.vidas === 1);
+        container.setAttribute("aria-label", `${gameSession.vidas} ${gameSession.vidas === 1 ? "vida" : "vidas"}`);
+    }
+}
+
+function usarDica() {
+    if (gameSession.answered || gameSession.dicaUsada) return;
+    const incorretas = Array.from(document.querySelectorAll(".neo-alt"))
+        .filter((card) => card.dataset.valor !== gameSession.currentCorrect);
+    embaralhar(incorretas).slice(0, 2).forEach((card) => {
+        card.classList.add("hint-hidden");
+        card.setAttribute("aria-hidden", "true");
+    });
+    gameSession.dicaUsada = true;
+    document.getElementById("btnDica").disabled = true;
+    tocarSom("dica");
+}
+
 function renderizarPergunta() {
     const idx = gameSession.shuffledIndices[gameSession.currentIndex];
     const pergunta = obterPergunta(idx);
     
     gameSession.currentCorrect = pergunta.correta;
     
-    // Configurar ícone
-    const iconEl = document.getElementById("perguntaIcon");
-    if (gameSession.modoJogo === "bandeiras") {
-        iconEl.innerHTML = '<i class="fas fa-flag"></i>';
-        iconEl.style.color = "var(--primary)";
-    } else if (gameSession.modoJogo === "capitais") {
-        iconEl.innerHTML = '<i class="fas fa-city"></i>';
-        iconEl.style.color = "var(--primary)";
-    } else {
-        iconEl.innerHTML = '<i class="fas fa-tree"></i>';
-        iconEl.style.color = "#2E7D32";
+    const modoLabel = document.getElementById("modoQuizLabel");
+    if (modoLabel) {
+        modoLabel.innerText = {
+            bandeiras: "DESAFIO DE BANDEIRAS",
+            capitais: "DESAFIO DE CAPITAIS",
+            biomas: "DESAFIO DE BIOMAS"
+        }[gameSession.modoJogo] || "DESAFIO GEO BR";
     }
     
     document.getElementById("perguntaTexto").innerText = pergunta.texto;
@@ -641,10 +769,7 @@ function renderizarPergunta() {
         const card = document.createElement("div");
         if (pergunta.tipo === "bioma") {
             card.className = `neo-alt neo-alt-bioma ${alt.className || ''}`;
-            card.innerHTML = `
-                <span class="bioma-icon">${alt.icon || "🌍"}</span>
-                <span class="bioma-name">${alt.nome}</span>
-            `;
+            card.innerHTML = `<span class="bioma-name">${alt.nome}</span>`;
             if (alt.nome && biomaColors[alt.nome]) {
                 card.style.borderLeftColor = biomaColors[alt.nome];
                 card.style.borderLeftWidth = "4px";
@@ -653,11 +778,14 @@ function renderizarPergunta() {
             card.className = "neo-alt";
             card.innerText = alt.nome;
         }
+        card.dataset.valor = alt.nome;
         card.onclick = () => processarResposta(alt.nome);
         container.appendChild(card);
     });
     
     document.getElementById("areaFeedback").innerHTML = "";
+    gameSession.dicaUsada = false;
+    document.getElementById("btnDica").disabled = false;
     gameSession.answered = false;
     document.querySelectorAll(".neo-alt").forEach(card => card.classList.remove("disabled"));
     
@@ -740,7 +868,7 @@ function processarResposta(selecionada) {
         } else if (gameSession.modoJogo === "capitais") {
             respostaCorreta = `${estado.name} - ${estado.capital}`;
         } else {
-            respostaCorreta = `${biomaIcons[estado.bioma] || "🌿"} ${estado.bioma} (${estado.name})`;
+            respostaCorreta = `${estado.bioma} (${estado.name})`;
         }
         mostrarNotificacao(`${respostaCorreta}!${msgDesbloqueio}`, "acerto", xpGanho);
         
@@ -749,6 +877,8 @@ function processarResposta(selecionada) {
     } else {
         containerImg.classList.add("wrong");
         gameSession.combo = 0;
+        gameSession.vidas = Math.max(0, gameSession.vidas - 1);
+        atualizarVidas();
         adicionarXP(2);
         
         let respostaCorreta = "";
@@ -757,9 +887,9 @@ function processarResposta(selecionada) {
         } else if (gameSession.modoJogo === "capitais") {
             respostaCorreta = `${estado.capital} (${estado.name})`;
         } else {
-            respostaCorreta = `${biomaIcons[estado.bioma] || "🌿"} ${estado.bioma} (${estado.name})`;
+            respostaCorreta = `${estado.bioma} (${estado.name})`;
         }
-        mostrarNotificacao(`❌ A RESPOSTA É ${respostaCorreta}. ${estado.curiosidade.substring(0, 80)}...`, "erro", 2);
+        mostrarNotificacao(`A RESPOSTA É ${respostaCorreta}. ${estado.curiosidade.substring(0, 80)}...`, "erro", 2);
     }
     
     document.getElementById("comboAtual").innerText = gameSession.combo;
@@ -767,7 +897,11 @@ function processarResposta(selecionada) {
     
     atualizarUI();
     salvarLocal();
-    iniciarTimerProximo();
+    if (gameSession.vidas <= 0) {
+        setTimeout(() => mostrarResultadoFinal(true), 1400);
+    } else {
+        iniciarTimerProximo();
+    }
 }
 
 function proximaPergunta() {
@@ -781,7 +915,7 @@ function proximaPergunta() {
     }
 }
 
-function mostrarResultadoFinal() {
+function mostrarResultadoFinal(encerrada = false) {
     if (gameSession.timerInterval) clearInterval(gameSession.timerInterval);
     limparAutoProximo();
     
@@ -798,6 +932,10 @@ function mostrarResultadoFinal() {
     document.getElementById("finalTempo").innerText = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
     document.getElementById("finalPatente").innerText = patentes[player.levelIndex];
     document.getElementById("finalMaxCombo").innerText = gameSession.sessionMaxCombo;
+    document.getElementById("tituloResultado").innerText = encerrada ? "MISSÃO ENCERRADA" : "MISSÃO CUMPRIDA!";
+    document.getElementById("mascoteResultado").src = caminhoPersonagem(player.personagem, encerrada ? 4 : 2);
+    document.getElementById("mascoteResultado").alt = encerrada ? "Personagem triste" : "Personagem comemorando";
+    tocarSom(encerrada ? "fim" : "vitoria");
     
     atualizarUI();
     
@@ -823,6 +961,8 @@ function resetarSessao() {
     gameSession.sessionMaxCombo = 0;
     gameSession.answered = false;
     gameSession.secondsElapsed = 0;
+    gameSession.vidas = 3;
+    gameSession.dicaUsada = false;
     
     document.getElementById("timerSegundos").innerText = gameSession.tempoQuestao;
     document.getElementById("progressoAtual").innerText = "1";
@@ -830,6 +970,7 @@ function resetarSessao() {
     document.getElementById("pontuacaoAtual").innerText = "0";
     document.getElementById("comboAtual").innerText = "0";
     document.getElementById("areaFeedback").innerHTML = "";
+    atualizarVidas();
     
     renderizarPergunta();
 }
@@ -851,7 +992,7 @@ function embaralhar(arr) {
 }
 
 function iniciarJogo() {
-    if (!player.nome || !player.serie) {
+    if (!player.nome) {
         abrirModalAluno();
         return;
     }
@@ -864,7 +1005,10 @@ function iniciarJogo() {
     
     gameSession.modoJogo = player.modoAtual;
     resetarSessao();
-    
+
+    document.getElementById("geobrTheme").disabled = false;
+    document.getElementById("geoBrOpening").classList.add("hidden");
+    document.getElementById("appRoot").classList.remove("hidden");
     document.getElementById("telaInicial").classList.remove("active");
     document.getElementById("telaJogo").classList.add("active");
     document.getElementById("telaResultado").classList.remove("active");
@@ -877,8 +1021,13 @@ function voltarMenu() {
     document.getElementById("telaJogo").classList.remove("active");
     document.getElementById("telaAlbum").classList.remove("active");
     document.getElementById("telaResultado").classList.remove("active");
-    document.getElementById("telaInicial").classList.add("active");
+    document.getElementById("telaInicial").classList.remove("active");
+    document.getElementById("appRoot").classList.add("hidden");
+    document.getElementById("geoBrOpening").classList.remove("hidden");
+    document.getElementById("geobrTheme").disabled = false;
+    player.nome = "";
     atualizarUI();
+    atualizarRankingUI();
 }
 
 // ============================================================
@@ -888,11 +1037,14 @@ function abrirAlbum() {
     const desbloqueadas = player.unlockedStates.filter(u => u).length;
     
     if (desbloqueadas < 27) {
-        mostrarNotificacao(`🔒 DESBLOQUEIE TODAS AS 27 BANDEIRAS PARA VER O ÁLBUM COMPLETO! (${desbloqueadas}/27)`, "info");
+        mostrarNotificacao(`DESBLOQUEIE TODAS AS 27 BANDEIRAS PARA VER O ÁLBUM COMPLETO! (${desbloqueadas}/27)`, "info");
         return;
     }
     
     atualizarAlbumUI();
+    document.getElementById("geobrTheme").disabled = true;
+    document.getElementById("geoBrOpening").classList.add("hidden");
+    document.getElementById("appRoot").classList.remove("hidden");
     document.getElementById("telaInicial").classList.remove("active");
     document.getElementById("telaAlbum").classList.add("active");
     if (gameSession.timerInterval) clearInterval(gameSession.timerInterval);
@@ -927,16 +1079,19 @@ function atualizarAlbumUI() {
 }
 
 function abrirModalConquistas() {
+    document.getElementById("geobrTheme").disabled = true;
+    document.getElementById("geoBrOpening").classList.add("hidden");
+    document.getElementById("appRoot").classList.remove("hidden");
     const lista = document.getElementById("listaConquistas");
     const conquistas = [
-        { id: "firstHit", title: "PRIMEIRO ACERTO", desc: "Acertar sua primeira pergunta", icon: "🎯" },
-        { id: "fiveCombo", title: "COMBO 5x", desc: "Acertar 5 perguntas seguidas", icon: "🔥" },
-        { id: "northComplete", title: "REGIÃO NORTE", desc: "Desbloquear todos os 7 estados do Norte", icon: "🌴" },
-        { id: "northeastComplete", title: "REGIÃO NORDESTE", desc: "Desbloquear todos os 9 estados do Nordeste", icon: "🏖️" },
-        { id: "centerwestComplete", title: "CENTRO-OESTE", desc: "Desbloquear todos os 4 estados", icon: "🏞️" },
-        { id: "southeastComplete", title: "SUDESTE", desc: "Desbloquear todos os 4 estados", icon: "🏙️" },
-        { id: "southComplete", title: "SUL", desc: "Desbloquear todos os 3 estados", icon: "❄️" },
-        { id: "allFlags", title: "COLEÇÃO COMPLETA", desc: "Desbloquear todos os 27 estados", icon: "👑" }
+        { id: "firstHit", title: "PRIMEIRO ACERTO", desc: "Acertar sua primeira pergunta", icon: "fa-bullseye" },
+        { id: "fiveCombo", title: "COMBO 5x", desc: "Acertar 5 perguntas seguidas", icon: "fa-fire-flame-curved" },
+        { id: "northComplete", title: "REGIÃO NORTE", desc: "Desbloquear todos os 7 estados do Norte", icon: "fa-tree" },
+        { id: "northeastComplete", title: "REGIÃO NORDESTE", desc: "Desbloquear todos os 9 estados do Nordeste", icon: "fa-umbrella-beach" },
+        { id: "centerwestComplete", title: "CENTRO-OESTE", desc: "Desbloquear todos os 4 estados", icon: "fa-mountain-sun" },
+        { id: "southeastComplete", title: "SUDESTE", desc: "Desbloquear todos os 4 estados", icon: "fa-city" },
+        { id: "southComplete", title: "SUL", desc: "Desbloquear todos os 3 estados", icon: "fa-snowflake" },
+        { id: "allFlags", title: "COLEÇÃO COMPLETA", desc: "Desbloquear todos os 27 estados", icon: "fa-crown" }
     ];
     
     lista.innerHTML = "";
@@ -945,9 +1100,9 @@ function abrirModalConquistas() {
         const div = document.createElement("div");
         div.className = `achievement-item ${!unlocked ? 'locked' : ''}`;
         div.innerHTML = `
-            <div class="achievement-icon">${ach.icon}</div>
+            <div class="achievement-icon"><i class="fas ${ach.icon}" aria-hidden="true"></i></div>
             <div class="achievement-info">
-                <div class="achievement-title">${unlocked ? '✓ ' : '🔒 '}${ach.title}</div>
+                <div class="achievement-title"><i class="fas ${unlocked ? 'fa-check' : 'fa-lock'}" aria-hidden="true"></i> ${ach.title}</div>
                 <div class="achievement-desc">${ach.desc}</div>
             </div>
         `;
@@ -964,54 +1119,55 @@ function fecharModalReset() {
     document.getElementById("modalReset").classList.remove("active");
 }
 
-function abrirModalResetRanking() {
-    document.getElementById("senhaResetRanking").value = "";
-    document.getElementById("modalResetRanking").classList.add("active");
-}
-
-function fecharModalResetRanking() {
-    document.getElementById("modalResetRanking").classList.remove("active");
-}
-
-function confirmarResetRanking() {
-    const senha = document.getElementById("senhaResetRanking").value;
-    if (senha === "professor" || senha === "admin" || senha === "1234") {
-        resetarRankingCompleto();
-        fecharModalResetRanking();
-    } else {
-        alert("Senha incorreta! Acesso negado.");
-    }
-}
-
 function abrirModalAluno() {
-    document.getElementById("alunoNome").value = player.nome;
-    document.getElementById("alunoSerie").value = player.serie;
-    document.getElementById("modalAluno").classList.add("active");
+    const modal = document.getElementById("modalAluno");
+    const campoNome = document.getElementById("alunoNome");
+    campoNome.value = "";
+    document.getElementById("characterError").textContent = "";
+    renderizarPersonagens(player.personagem);
+    modal.classList.add("active");
+    requestAnimationFrame(() => campoNome.focus());
 }
 
-function fecharModalAluno() {
+function fecharModalAluno(cancelarPendente = true) {
     document.getElementById("modalAluno").classList.remove("active");
+    if (cancelarPendente) modoPendenteAbertura = null;
 }
 
 function salvarAluno() {
     const nome = document.getElementById("alunoNome").value.trim();
-    const serie = document.getElementById("alunoSerie").value;
+    const serie = "GEO BR";
     
     if (nome === "") {
         alert("Digite seu nome!");
         return;
     }
-    if (serie === "") {
-        alert("Selecione sua série!");
+    if (!player.personagem) {
+        document.getElementById("characterError").textContent = "Escolha uma capivara.";
         return;
     }
     
-    player.nome = nome;
+    const cadastroExistente = buscarPerfilJogador(nome)
+        || ranking.find(item => normalizarNomeJogador(item.nome) === normalizarNomeJogador(nome));
+    if (cadastroExistente) {
+        player.nome = cadastroExistente.nome;
+        player.xp = Number(cadastroExistente.xp) || 0;
+        player.personagem = normalizarPersonagem(cadastroExistente.personagem);
+    } else {
+        player.nome = nome.replace(/\s+/g, " ");
+        player.xp = 0;
+    }
     player.serie = serie;
+    atualizarPatente();
     salvarLocal();
-    adicionarOuAtualizarRanking(player.nome, player.serie, player.xp, patentes[player.levelIndex]);
-    fecharModalAluno();
+    salvarRanking();
+    adicionarOuAtualizarRanking(player.nome, player.serie, player.xp, patentes[player.levelIndex], player.personagem);
+    fecharModalAluno(false);
     atualizarUI();
+    if (modoPendenteAbertura) {
+        modoPendenteAbertura = null;
+        iniciarJogo();
+    }
 }
 
 // ============================================================
@@ -1021,11 +1177,17 @@ document.getElementById("btnIniciarJogo").addEventListener("click", iniciarJogo)
 document.getElementById("btnAbrirAlbum").addEventListener("click", abrirAlbum);
 document.getElementById("btnFecharAlbum").addEventListener("click", voltarMenu);
 document.getElementById("btnVoltarMenu").addEventListener("click", voltarMenu);
+document.getElementById("btnMenuResultado").addEventListener("click", voltarMenu);
 document.getElementById("btnResetarProgresso").addEventListener("click", abrirModalReset);
 document.getElementById("btnConfirmarReset").addEventListener("click", resetarProgresso);
 document.getElementById("btnCancelarReset").addEventListener("click", fecharModalReset);
 document.getElementById("btnFecharModal").addEventListener("click", () => document.getElementById("modalEstado").classList.remove("active"));
-document.getElementById("btnFecharConquistas").addEventListener("click", () => document.getElementById("modalConquistas").classList.remove("active"));
+document.getElementById("btnFecharConquistas").addEventListener("click", () => {
+    document.getElementById("modalConquistas").classList.remove("active");
+    document.getElementById("appRoot").classList.add("hidden");
+    document.getElementById("geoBrOpening").classList.remove("hidden");
+    document.getElementById("geobrTheme").disabled = false;
+});
 document.getElementById("btnAbrirConquistas").addEventListener("click", abrirModalConquistas);
 document.getElementById("btnJogarNovamente").addEventListener("click", () => {
     document.getElementById("telaResultado").classList.remove("active");
@@ -1035,7 +1197,7 @@ document.getElementById("btnVerAlbum").addEventListener("click", () => {
     document.getElementById("telaResultado").classList.remove("active");
     const desbloqueadas = player.unlockedStates.filter(u => u).length;
     if (desbloqueadas < 27) {
-        mostrarNotificacao(`🔒 COMPLETE TODAS AS 27 BANDEIRAS PARA VER O ÁLBUM! (${desbloqueadas}/27)`, "info");
+        mostrarNotificacao(`COMPLETE TODAS AS 27 BANDEIRAS PARA VER O ÁLBUM! (${desbloqueadas}/27)`, "info");
         return;
     }
     abrirAlbum();
@@ -1043,9 +1205,19 @@ document.getElementById("btnVerAlbum").addEventListener("click", () => {
 document.getElementById("btnTrocarNome").addEventListener("click", abrirModalAluno);
 document.getElementById("btnSalvarAluno").addEventListener("click", salvarAluno);
 document.getElementById("btnFecharModalAluno").addEventListener("click", fecharModalAluno);
-document.getElementById("btnResetarRanking").addEventListener("click", abrirModalResetRanking);
-document.getElementById("btnConfirmarResetRanking").addEventListener("click", confirmarResetRanking);
-document.getElementById("btnCancelarResetRanking").addEventListener("click", fecharModalResetRanking);
+document.getElementById("btnCancelarAluno").addEventListener("click", fecharModalAluno);
+document.getElementById("btnResetarRanking").addEventListener("click", limparRankingComoGeoMundo);
+document.getElementById("btnDica").addEventListener("click", usarDica);
+document.getElementById("btnLimparRankingAbertura").addEventListener("click", limparRankingComoGeoMundo);
+
+document.querySelectorAll(".geo-mode-card").forEach(btn => {
+    btn.addEventListener("click", () => {
+        prepararNovoJogador();
+        player.modoAtual = btn.dataset.modo;
+        modoPendenteAbertura = btn.dataset.modo;
+        abrirModalAluno();
+    });
+});
 
 document.querySelectorAll(".neo-btn-modo").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -1056,6 +1228,10 @@ document.querySelectorAll(".neo-btn-modo").forEach(btn => {
 });
 
 window.addEventListener("click", (e) => {
+    if (e.target.id === "modalAluno") {
+        fecharModalAluno();
+        return;
+    }
     if (e.target.classList.contains("modal")) {
         e.target.classList.remove("active");
     }
